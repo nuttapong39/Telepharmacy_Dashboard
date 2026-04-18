@@ -167,7 +167,7 @@ if (isset($_SESSION['logged_in'])) {
     <div class="px-8 py-7">
       <p class="text-slate-500 text-sm text-center mb-6">กรุณาเข้าสู่ระบบเพื่อดำเนินการต่อ</p>
 
-      <form method="POST" id="loginForm">
+      <form method="POST" id="loginForm" accept-charset="UTF-8">
         <div class="space-y-4">
 
           <!-- username -->

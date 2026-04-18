@@ -1,0 +1,66 @@
+Options -Indexes -MultiViews
+AddDefaultCharset UTF-8
+
+# ── ModSecurity ──────────────────────────────────────────────
+# Disable WAF rules that block Thai characters & login POST data
+<IfModule mod_security.c>
+    SecFilterEngine Off
+    SecFilterScanPOST Off
+</IfModule>
+
+<IfModule mod_security2.c>
+    SecRuleEngine Off
+</IfModule>
+
+# ── PHP settings ─────────────────────────────────────────────
+<IfModule mod_php.c>
+    php_flag  display_errors      Off
+    php_value upload_max_filesize 10M
+    php_value post_max_size       10M
+    php_value max_execution_time  60
+    php_flag  session.use_cookies On
+    php_value default_charset     UTF-8
+</IfModule>
+
+<IfModule mod_php7.c>
+    php_flag  display_errors      Off
+    php_value upload_max_filesize 10M
+    php_value post_max_size       10M
+    php_value max_execution_time  60
+    php_flag  session.use_cookies On
+    php_value default_charset     UTF-8
+</IfModule>
+
+<IfModule mod_php8.c>
+    php_flag  display_errors      Off
+    php_value upload_max_filesize 10M
+    php_value post_max_size       10M
+    php_value max_execution_time  60
+    php_flag  session.use_cookies On
+    php_value default_charset     UTF-8
+</IfModule>
+
+# ── Allow POST & file types ───────────────────────────────────
+<LimitExcept GET POST HEAD>
+    deny from all
+</LimitExcept>
+
+# ── Protect sensitive files ───────────────────────────────────
+<Files "config.php">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files ".htaccess">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# ── Rewrite: clean URLs & force HTTPS ────────────────────────
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Redirect HTTP → HTTPS
+    RewriteCond %{HTTPS} off
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
