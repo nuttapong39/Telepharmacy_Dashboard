@@ -18,10 +18,10 @@ $records = $data['records'];
 $monthly = $data['monthly'];
 
 $total       = count($records);
-$not_miss    = count(array_filter($records, fn($r) => $r['telepharmacy'] === 'ไม่ขาดยา'));
-$miss_1day   = count(array_filter($records, fn($r) => $r['telepharmacy'] === 'ขาดยา 1 วัน'));
-$no_followup = count(array_filter($records, fn($r) => $r['telepharmacy'] === 'ติดตามไม่ได้'));
-$med_errors  = count(array_filter($records, fn($r) => $r['medication_error'] === 'พบ'));
+$not_miss    = count(array_filter($records, function($r) { return $r['telepharmacy'] === 'ไม่ขาดยา'; }));
+$miss_1day   = count(array_filter($records, function($r) { return $r['telepharmacy'] === 'ขาดยา 1 วัน'; }));
+$no_followup = count(array_filter($records, function($r) { return $r['telepharmacy'] === 'ติดตามไม่ได้'; }));
+$med_errors  = count(array_filter($records, function($r) { return $r['medication_error'] === 'พบ'; }));
 $success_count = $not_miss + $miss_1day;
 $success_rate  = $total > 0 ? round($success_count / $total * 100, 1) : 0;
 $med_err_rate  = $total > 0 ? round($med_errors / $total * 100, 1) : 0;
@@ -33,7 +33,7 @@ $monthTH = [
     '09'=>'ก.ย.','10'=>'ต.ค.','11'=>'พ.ย.','12'=>'ธ.ค.'
 ];
 function monthLabel($str, $mTH) {
-    [$y,$m] = explode('-', $str);
+    list($y,$m) = explode('-', $str);
     return $mTH[$m].' '.$y;
 }
 
@@ -521,7 +521,7 @@ tbody td { padding: 11px 16px; font-size: 13px; color: var(--text); }
       <label>FROM</label>
       <select id="filterFrom" onchange="applyFilter()">
         <?php foreach ($monthly as $i => $row):
-          [$y,$m] = explode('-', $row['month']);
+          list($y,$m) = explode('-', $row['month']);
           $label = $monthTH[$m].' '.$y;
         ?>
         <option value="<?= $i ?>"><?= $label ?></option>
@@ -531,7 +531,7 @@ tbody td { padding: 11px 16px; font-size: 13px; color: var(--text); }
       <label>TO</label>
       <select id="filterTo" onchange="applyFilter()">
         <?php foreach ($monthly as $i => $row):
-          [$y,$m] = explode('-', $row['month']);
+          list($y,$m) = explode('-', $row['month']);
           $label = $monthTH[$m].' '.$y;
         ?>
         <option value="<?= $i ?>" <?= $i===count($monthly)-1?'selected':'' ?>><?= $label ?></option>
@@ -657,12 +657,13 @@ tbody td { padding: 11px 16px; font-size: 13px; color: var(--text); }
           <p class="chart-title mb-4">สถิติการขาดยาของผู้ป่วย</p>
           <div class="mt-2 space-y-1" id="adherenceStats">
             <?php
-            $cats = [
-              ['ไม่ขาดยา',      $not_miss,    '#3b82f6', 'badge-success'],
-              ['ขาดยา 1 วัน',   $miss_1day,   '#f97316', 'badge-warn'],
-              ['ติดตามไม่ได้',  $no_followup, '#a78bfa', 'badge-nofu'],
-            ];
-            foreach ($cats as [$lbl, $n, $color, $badge]):
+            $cats = array(
+              array('ไม่ขาดยา',     $not_miss,    '#3b82f6', 'badge-success'),
+              array('ขาดยา 1 วัน',  $miss_1day,   '#f97316', 'badge-warn'),
+              array('ติดตามไม่ได้', $no_followup, '#a78bfa', 'badge-nofu'),
+            );
+            foreach ($cats as $catItem):
+              list($lbl, $n, $color, $badge) = $catItem;
               $pct = $total > 0 ? round($n/$total*100) : 0;
             ?>
             <div class="stat-row">
@@ -679,11 +680,12 @@ tbody td { padding: 11px 16px; font-size: 13px; color: var(--text); }
           <p class="chart-title mb-3" style="font-size:12px;">Medication Error</p>
           <?php
           $errCats = [
-            ['ไม่พบ',          count(array_filter($records, fn($r)=>$r['medication_error']==='ไม่พบ')),       '#22c55e'],
-            ['พบ',             $med_errors, '#ef4444'],
-            ['ติดตามไม่ได้',  count(array_filter($records, fn($r)=>$r['medication_error']==='ติดตามไม่ได้')), '#a78bfa'],
+            array('ไม่พบ',         count(array_filter($records, function($r){ return $r['medication_error']==='ไม่พบ'; })),        '#22c55e'),
+            array('พบ',            $med_errors, '#ef4444'),
+            array('ติดตามไม่ได้', count(array_filter($records, function($r){ return $r['medication_error']==='ติดตามไม่ได้'; })), '#a78bfa'),
           ];
-          foreach ($errCats as [$lbl, $n, $color]):
+          foreach ($errCats as $errItem):
+            list($lbl, $n, $color) = $errItem;
             $pct = $total > 0 ? round($n/$total*100) : 0;
           ?>
           <div class="stat-row">
